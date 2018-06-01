@@ -27,9 +27,9 @@ PBCodedWriteStream >> contents [
 ]
 
 { #category : #utilities }
-PBCodedWriteStream >> decodeUtf8: aString [
+PBCodedWriteStream >> decodeUtf8: aByteArray [
 
-	^ ZnUTF8Encoder default decodeBytes: aString
+	^ ZnUTF8Encoder default decodeBytes: aByteArray
 ]
 
 { #category : #utilities }

@@ -72,6 +72,20 @@ PBProtobufCoder class >> encodeZigZag64: anInteger [
 			ifFalse: [ (anInteger negated << 1) - 1 ]	
 ]
 
+{ #category : #'coder-tags' }
+PBProtobufCoder class >> getTagFieldNumber: anInteger [
+	"Given a tag value, determines the field number (the upper 29 bits)."
+
+	^ anInteger >> 3
+]
+
+{ #category : #'coder-tags' }
+PBProtobufCoder class >> getTagWireType: anInteger [
+	"Given a tag value, determines the wire type (the lower 3 bits)."
+
+	^ anInteger bitAnd: 2r111
+]
+
 { #category : #'coder-varint' }
 PBProtobufCoder class >> readVarint32: aByteStream [
 
