@@ -1,5 +1,5 @@
 Class {
 	#name : #PBProtobufTestMessage2,
-	#superclass : #Object,
+	#superclass : #PBMessage,
 	#category : #'Protobuf-Core-Tests'
 }

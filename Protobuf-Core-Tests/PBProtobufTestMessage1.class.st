@@ -1,6 +1,6 @@
 Class {
 	#name : #PBProtobufTestMessage1,
-	#superclass : #Object,
+	#superclass : #PBMessage,
 	#instVars : [
 		'name',
 		'hobbies',
