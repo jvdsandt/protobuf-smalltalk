@@ -138,6 +138,83 @@ PBCodedWriteStream >> writeDouble: aValue field: aFieldNr [
 ]
 
 { #category : #writing }
+PBCodedWriteStream >> writeField: aFieldNr bool: aValue [
+	"Only write somthing if <aValue> is true."
+
+	aValue = true
+		ifTrue: [ 
+			self writeTag: aFieldNr type: 0. "Varint"
+			self coder writeVarintRaw: 1 on: stream ]
+]
+
+{ #category : #writing }
+PBCodedWriteStream >> writeField: aFieldNr int32List: aList [
+
+	aList isNil
+		ifTrue: [ ^ self ].
+		
+	aList do: [ :eachString |
+		self writeField: aFieldNr string: eachString ]
+]
+
+{ #category : #writing }
+PBCodedWriteStream >> writeField: aFieldNr message: aMessage [
+
+	| msgBytes bufferStream |
+
+	aMessage isNil
+		ifTrue: [ ^ self ].
+
+	self writeTag: aFieldNr type: 2. "length_delimited"
+
+	bufferStream := WriteStream on: (ByteArray new: 512).
+	aMessage writeTo: (self class on: bufferStream).
+	msgBytes := bufferStream contents.
+	
+	self coder writeVarintRaw: msgBytes size on: stream.
+	stream nextPutAll: msgBytes
+]
+
+{ #category : #writing }
+PBCodedWriteStream >> writeField: aFieldNr messageList: aList [
+
+	aList isNil
+		ifTrue: [ ^ self ].
+
+	aList do: [ :eachMessage |
+		self writeField: aFieldNr message: eachMessage ]
+]
+
+{ #category : #writing }
+PBCodedWriteStream >> writeField: aFieldNr string: aValue [
+
+	aValue notNil
+		ifTrue: [ 
+			self writeTag: aFieldNr type: 2. "length_delimited"
+			self writeString: aValue ]
+]
+
+{ #category : #writing }
+PBCodedWriteStream >> writeField: aFieldNr stringList: aList [
+
+	aList isNil
+		ifTrue: [ ^ self ].
+		
+	aList do: [ :eachString |
+		self writeField: aFieldNr string: eachString ]
+]
+
+{ #category : #writing }
+PBCodedWriteStream >> writeField: aFieldNr uint64: aValue [
+
+	aValue isNil
+		ifTrue: [ ^ self ].
+			
+	self writeTag: aFieldNr type: 0. "Varint"
+	self writeUInt64: aValue
+]
+
+{ #category : #writing }
 PBCodedWriteStream >> writeFixed32: anInteger [
 
 	self 
@@ -180,11 +257,13 @@ PBCodedWriteStream >> writeInt32: aValue field: aFieldNr [
 { #category : #writing }
 PBCodedWriteStream >> writeString: aValue [
 
-	self writeBytes: (self utf8Encode: aValue)
+	self writeByteArray: (self coder encodeUtf8: aValue)
 ]
 
 { #category : #writing }
 PBCodedWriteStream >> writeTag: aFieldNr type: aWireTypeNr [
+
+	self coder writeVarintRaw: (self coder makeTag: aFieldNr wireType: aWireTypeNr) on: stream
 ]
 
 { #category : #writing }
@@ -194,8 +273,7 @@ PBCodedWriteStream >> writeUInt32: anInteger [
 ]
 
 { #category : #writing }
-PBCodedWriteStream >> writeUInt32: aValue field: aFieldNr [
+PBCodedWriteStream >> writeUInt64: anInteger [
 
-	self writeTag: aFieldNr type: self wireTypeVarInt.
-	self writeUInt32: aValue
+	self coder writeVarintRaw: anInteger on: stream
 ]

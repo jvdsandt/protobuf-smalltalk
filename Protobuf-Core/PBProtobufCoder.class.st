@@ -86,16 +86,40 @@ PBProtobufCoder class >> getTagWireType: anInteger [
 	^ anInteger bitAnd: 2r111
 ]
 
+{ #category : #'coder-tags' }
+PBProtobufCoder class >> is32bitField: aTag [
+
+	^(self getTagWireType: aTag) = 5
+]
+
+{ #category : #'coder-tags' }
+PBProtobufCoder class >> is64bitField: aTag [
+
+	^(self getTagWireType: aTag) = 1
+]
+
+{ #category : #'coder-tags' }
+PBProtobufCoder class >> isLengthDelimitedField: aTag [
+
+	^(self getTagWireType: aTag) = 2
+]
+
+{ #category : #'coder-tags' }
+PBProtobufCoder class >> isVarintField: aTag [
+
+	^(self getTagWireType: aTag) = 0
+]
+
+{ #category : #'coder-tags' }
+PBProtobufCoder class >> makeTag: aFieldNr wireType: aTypeNr [
+
+	^ (aFieldNr << 3) bitOr: aTypeNr
+]
+
 { #category : #'coder-varint' }
 PBProtobufCoder class >> readVarint32: aByteStream [
 
-	| val |
-	
-	val := self readVarintRaw: aByteStream.
-	
-	^val < 16r80000000
-		ifTrue: [ val ]
-		ifFalse: [ val - 16r100000000 ]
+	^ self readVarint64: aByteStream
 ]
 
 { #category : #'coder-varint' }
@@ -130,11 +154,7 @@ PBProtobufCoder class >> readVarintRaw: aByteStream [
 { #category : #'coder-varint' }
 PBProtobufCoder class >> writeVarint32: anInteger on: aByteStream [
 
-	self writeVarintRaw: (
-			anInteger < 0
-				ifTrue: [ 16r100000000 + anInteger ]
-				ifFalse: [ anInteger ])
-		on: aByteStream
+	self writeVarint64: anInteger on: aByteStream
 ]
 
 { #category : #'coder-varint' }
