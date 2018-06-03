@@ -5,10 +5,10 @@ Class {
 	#name : #PBProtobufFieldNode,
 	#superclass : #PBProtobufNode,
 	#instVars : [
-		'kind',
-		'cardinality',
 		'number',
 		'name',
+		'type',
+		'cardinality',
 		'typeUrl',
 		'oneofIndex'
 	],
@@ -16,12 +16,12 @@ Class {
 }
 
 { #category : #'instance creation' }
-PBProtobufFieldNode class >> kind: aKindEnum cardinality: aCardEnum number: aNumber name: aName [ 
+PBProtobufFieldNode class >> number: aNumber name: aName type: aFieldType cardinality: aCardEnum [ 
 
-	^self new initWithKind: aKindEnum 
-		cardinality: aCardEnum 
-		number: aNumber 
+	^self new initWithNumber: aNumber 
 		name: aName 
+		type: aFieldType 
+		cardinality: aCardEnum
 ]
 
 { #category : #'instance creation' }
@@ -53,23 +53,17 @@ PBProtobufFieldNode >> cardinality [
 ]
 
 { #category : #initialization }
-PBProtobufFieldNode >> initWithKind: aKindEnum cardinality: aCardEnum number: aNumber name: aName [ 
+PBProtobufFieldNode >> initWithNumber: aNumber name: aName type: aFieldType cardinality: aCardEnum [ 
 
-	kind := aKindEnum.
 	cardinality := aCardEnum.
 	number := aNumber.
 	name := aName.
+	type := aFieldType
 ]
 
 { #category : #testing }
 PBProtobufFieldNode >> isFieldNode [
 	^true
-]
-
-{ #category : #accessing }
-PBProtobufFieldNode >> kind [
-
-	^ kind
 ]
 
 { #category : #accessing }
@@ -81,6 +75,11 @@ PBProtobufFieldNode >> name [
 PBProtobufFieldNode >> number [
 
 	^ number
+]
+
+{ #category : #accessing }
+PBProtobufFieldNode >> type [
+	^ type
 ]
 
 { #category : #accessing }

@@ -98,19 +98,19 @@ PBProtobufParser >> field [
 
 	^super field ==> [ :array |
 		
-		| fKind fCardinality fName fNumber |
+		| fType fCardinality fName fNumber |
 	
-		fKind := #TYPE_MESSAGE.
+		fType := array at: 2.
 		fCardinality := array first = 'repeated'
 			ifTrue: [ #CARDINALITY_REPEATED ]
 			ifFalse: [ #CARDINALITY_OPTIONAL ].
 		fName := array at: 4.
 		fNumber := (array at: 6) asNumber.
 	
-		PBProtobufFieldNode kind: fKind 
-			cardinality: fCardinality
-			number: fNumber
-			name: fName ]
+		PBProtobufFieldNode number: fNumber
+			name: fName 
+			type: fType
+			cardinality: fCardinality ]
 ]
 
 { #category : #'grammar-literals' }
@@ -138,19 +138,19 @@ PBProtobufParser >> mapField [
 
 	^super mapField ==> [ :array |
 		
-		| fKind fCardinality fName fNumber |
+		| fType fCardinality fName fNumber |
 	
-		fKind := #TYPE_MESSAGE.
+		fType := #TYPE_MESSAGE.
 		fCardinality := array first = 'repeated'
 			ifTrue: [ #CARDINALITY_REPEATED ]
 			ifFalse: [ #CARDINALITY_OPTIONAL ].
 		fName := array at: 8.
 		fNumber := (array at: 10) asNumber.
 	
-		PBProtobufFieldNode kind: fKind 
-			cardinality: fCardinality
-			number: fNumber
-			name: fName ]
+		PBProtobufFieldNode number: fNumber
+			name: fName 
+			type: fType
+			cardinality: fCardinality ]
 ]
 
 { #category : #'grammar-literals' }
@@ -205,4 +205,10 @@ PBProtobufParser >> strLiteral [
 
 	^super strLiteral ==> [ :array | array at: 2 ]
 
+]
+
+{ #category : #'grammar-literals' }
+PBProtobufParser >> type [
+
+	^super type ==> [ :str | PBProtobufTypeNode name: str ]
 ]
