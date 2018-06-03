@@ -127,6 +127,7 @@ PBProtobufParserTest >> testField1 [
 	super testField1.
 	self assert: self result name equals: 'nested_message'.
 	self assert: self result number equals: 12.
+	self assert: self result type name equals: 'foo.bar'
 ]
 
 { #category : #tests }
@@ -236,4 +237,20 @@ PBProtobufParserTest >> testStrLiteral2 [
 	super testStrLiteral2.
 	self assert: result equals: 'pipo'
 	
+]
+
+{ #category : #tests }
+PBProtobufParserTest >> testType1 [
+
+	super testType1.
+	self assert: self result name equals: 'int64'.
+
+]
+
+{ #category : #tests }
+PBProtobufParserTest >> testType2 [
+
+	super testType2.
+	self assert: self result name equals: 'foo.bar'.
+
 ]
