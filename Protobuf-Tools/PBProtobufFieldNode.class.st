@@ -16,6 +16,12 @@ Class {
 }
 
 { #category : #'instance creation' }
+PBProtobufFieldNode class >> number: aNumber name: aName type: aFieldType [
+
+	^self number: aNumber name: aName type: aFieldType cardinality: #CARDINALITY_OPTIONAL
+]
+
+{ #category : #'instance creation' }
 PBProtobufFieldNode class >> number: aNumber name: aName type: aFieldType cardinality: aCardEnum [ 
 
 	^self new initWithNumber: aNumber 
@@ -25,26 +31,11 @@ PBProtobufFieldNode class >> number: aNumber name: aName type: aFieldType cardin
 ]
 
 { #category : #'instance creation' }
-PBProtobufFieldNode class >> standardTypes [
+PBProtobufFieldNode class >> number: aNumber name: aName typeName: aTypeName [
 
-	^ Dictionary new
-		at: 'double' put: #TYPE_DOUBLE;
-		at: 'float' put: #TYPE_FLOAT;
-		at: 'int64' put: #TYPE_INT64;
-		at: 'uint64' put: #TYPE_UINT64;		
-		at: 'int32' put: #TYPE_INT32;
-		at: 'uint32' put: #TYPE_UINT32;		
-		at: 'fixed64' put: #TYPE_FIXED64;
-		at: 'fixed32' put: #TYPE_FIXED32;
-		at: 'bool' put: #TYPE_BOOL;
-		at: 'string' put: #TYPE_STRING;
-		at: 'bytes' put: #TYPE_BYTES;
-		at: 'sfixed64' put: #TYPE_SFIXED64;
-		at: 'sfixed32' put: #TYPE_SFIXED32;
-		at: 'sint32' put: #TYPE_SINT32;
-		at: 'sint64' put: #TYPE_SINT64;
-		yourself
-
+	^self number: aNumber
+		name: aName 
+		type: (PBProtobufTypeNode name: aTypeName)
 ]
 
 { #category : #accessing }
@@ -75,6 +66,16 @@ PBProtobufFieldNode >> name [
 PBProtobufFieldNode >> number [
 
 	^ number
+]
+
+{ #category : #printing }
+PBProtobufFieldNode >> printOn: aStream [
+
+	aStream
+		nextPutAll: self class name;
+		nextPut: $<;
+		print: self name;
+		nextPut: $>
 ]
 
 { #category : #accessing }

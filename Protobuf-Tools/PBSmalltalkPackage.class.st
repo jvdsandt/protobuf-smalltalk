@@ -1,9 +1,8 @@
 Class {
-	#name : #PBSmalltalkEnumType,
+	#name : #PBSmalltalkPackage,
 	#superclass : #PBSmalltalkNodeWrapper,
 	#instVars : [
-		'packageName',
-		'className'
+		'packageName'
 	],
 	#category : #'Protobuf-Tools-Generator'
 }

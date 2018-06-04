@@ -33,6 +33,16 @@ PBProtobufEnum >> options [
 	^ options
 ]
 
+{ #category : #printing }
+PBProtobufEnum >> printOn: aStream [
+
+	aStream
+		nextPutAll: self class name;
+		nextPut: $<;
+		print: self name;
+		nextPut: $>
+]
+
 { #category : #accessing }
 PBProtobufEnum >> values [
 	^ values

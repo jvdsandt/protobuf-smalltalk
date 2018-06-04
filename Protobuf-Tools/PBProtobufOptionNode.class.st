@@ -32,6 +32,18 @@ PBProtobufOptionNode >> name [
 	^ name
 ]
 
+{ #category : #printing }
+PBProtobufOptionNode >> printOn: aStream [
+
+	aStream
+		nextPutAll: self class name;
+		nextPut: $<;
+		print: self name;
+		nextPut: $=;
+		print: value;
+		nextPut: $>
+]
+
 { #category : #accessing }
 PBProtobufOptionNode >> value [
 	^ value

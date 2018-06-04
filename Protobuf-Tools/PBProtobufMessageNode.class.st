@@ -38,6 +38,16 @@ PBProtobufMessageNode >> options [
 	^ options
 ]
 
+{ #category : #printing }
+PBProtobufMessageNode >> printOn: aStream [
+
+	aStream
+		nextPutAll: self class name;
+		nextPut: $<;
+		print: self name;
+		nextPut: $>
+]
+
 { #category : #copying }
 PBProtobufMessageNode >> withName: newName [
 

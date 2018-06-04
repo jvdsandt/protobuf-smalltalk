@@ -23,3 +23,13 @@ PBProtobufPackageNode >> initWithName: aString [
 PBProtobufPackageNode >> name [
 	^ name
 ]
+
+{ #category : #printing }
+PBProtobufPackageNode >> printOn: aStream [
+
+	aStream
+		nextPutAll: self class name;
+		nextPut: $<;
+		print: self name;
+		nextPut: $>
+]
