@@ -55,6 +55,7 @@ PBSmalltalkMessageType >> generateIn: aRBSmalltalk [
 	newClass := refactoring model classNamed: self className.
 	
 	updateRefactoring	:= PBUpdateMessageClassRefactoring messageType: self class: newClass.
+	updateRefactoring model: aRBSmalltalk.
 	updateRefactoring execute.
 	
 ]

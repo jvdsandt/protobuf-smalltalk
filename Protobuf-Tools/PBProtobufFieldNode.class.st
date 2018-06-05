@@ -43,6 +43,14 @@ PBProtobufFieldNode >> cardinality [
 	^ cardinality
 ]
 
+{ #category : #accessing }
+PBProtobufFieldNode >> defaultValue [
+
+	^ self isCardinalityRepeated
+		ifTrue: [ #() ]
+		ifFalse: [ self type defaultValue ]
+]
+
 { #category : #initialization }
 PBProtobufFieldNode >> initWithNumber: aNumber name: aName type: aFieldType cardinality: aCardEnum [ 
 
@@ -50,6 +58,18 @@ PBProtobufFieldNode >> initWithNumber: aNumber name: aName type: aFieldType card
 	number := aNumber.
 	name := aName.
 	type := aFieldType
+]
+
+{ #category : #testing }
+PBProtobufFieldNode >> isCardinalityOptional [
+
+	^ self cardinality = #CARDINALITY_OPTIONAL
+]
+
+{ #category : #testing }
+PBProtobufFieldNode >> isCardinalityRepeated [
+
+	^ self cardinality = #CARDINALITY_REPEATED
 ]
 
 { #category : #testing }
@@ -79,11 +99,30 @@ PBProtobufFieldNode >> printOn: aStream [
 ]
 
 { #category : #accessing }
+PBProtobufFieldNode >> tagNumber [
+
+	^ PBProtobufCoder makeTag: self number wireType: self type wireType
+]
+
+{ #category : #accessing }
 PBProtobufFieldNode >> type [
 	^ type
 ]
 
 { #category : #accessing }
+PBProtobufFieldNode >> typeName [
+	^ self type name
+]
+
+{ #category : #accessing }
 PBProtobufFieldNode >> typeUrl [
 	^ typeUrl
+]
+
+{ #category : #accessing }
+PBProtobufFieldNode >> wireType [
+
+	^ self isCardinalityRepeated
+			ifTrue: [ PBProtobufTypeNode wireTypeLengthDelimited ]
+			ifFalse: [ self type wireType ]
 ]

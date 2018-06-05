@@ -65,6 +65,12 @@ PBProtobufTypeNode class >> name: aName [
 ]
 
 { #category : #resources }
+PBProtobufTypeNode class >> scalarValueTypeNames [
+
+	^self standardTypes keys
+]
+
+{ #category : #resources }
 PBProtobufTypeNode class >> sint32 [
 
 	^self name: 'sint32'
@@ -117,13 +123,37 @@ PBProtobufTypeNode class >> uint64 [
 	^self name: 'uint64'
 ]
 
+{ #category : #resources }
+PBProtobufTypeNode class >> wireType32bit [
+
+	^ 5
+]
+
+{ #category : #resources }
+PBProtobufTypeNode class >> wireType64bit [
+
+	^ 1
+]
+
+{ #category : #resources }
+PBProtobufTypeNode class >> wireTypeLengthDelimited [
+
+	^ 2
+]
+
+{ #category : #resources }
+PBProtobufTypeNode class >> wireTypeVarint [
+
+	^ 0
+]
+
 { #category : #accessing }
 PBProtobufTypeNode >> defaultParameterName [
 
 	self isIntegerType
 		ifTrue: [ ^ 'anInteger' ].
 		
-	self isString
+	self isStringType
 		ifTrue: [ ^ 'aString' ].
 		
 	self isBooleanType
@@ -132,7 +162,37 @@ PBProtobufTypeNode >> defaultParameterName [
 	self isFloatType
 		ifTrue: [ ^ 'aFloat' ].
 		
+	self isBytesType
+		ifTrue: [ ^ 'aByteArray' ].
+		
 	^'anObject'
+]
+
+{ #category : #accessing }
+PBProtobufTypeNode >> defaultValue [
+
+	"For numeric types, the default value is zero."
+	(self isIntegerType or: [ self isFloatType ])
+		ifTrue: [ ^ 0 ].
+		
+	"For strings, the default value is the empty string."
+	self isStringType
+		ifTrue: [ ^ '' ].
+		
+	"For bools, the default value is false."
+	self isBooleanType
+		ifTrue: [ ^ false ].
+		
+	"For bytes, the default value is empty bytes."
+	self isBytesType
+		ifTrue: [ ^ #[] ].
+		
+	"For enums, the default value is the first defined enum value, which must be 0."
+	self isEnumType
+		ifTrue: [ ^0 "todo" ].
+		
+	"For message fields, the field is not set. Its exact value is language-dependent."
+	^nil
 ]
 
 { #category : #initialization }
@@ -148,6 +208,20 @@ PBProtobufTypeNode >> isBooleanType [
 ]
 
 { #category : #testing }
+PBProtobufTypeNode >> isBytesType [
+
+	^ self name = 'bytes'
+]
+
+{ #category : #testing }
+PBProtobufTypeNode >> isEnumType [
+
+	^false
+
+
+]
+
+{ #category : #testing }
 PBProtobufTypeNode >> isFloatType [
 
 	^ #( 'float' 'double' ) includes: self name
@@ -157,6 +231,14 @@ PBProtobufTypeNode >> isFloatType [
 PBProtobufTypeNode >> isIntegerType [
 
 	^ #( 'int32' 'int64' 'uint32' 'uint64' 'sint32' 'sint64' 'fixed32' 'fixed64' ) includes: self name
+]
+
+{ #category : #testing }
+PBProtobufTypeNode >> isScalarValueType [
+
+	^self class scalarValueTypeNames includes: self name
+
+
 ]
 
 { #category : #testing }
@@ -178,4 +260,19 @@ PBProtobufTypeNode >> printOn: aStream [
 		nextPut: $<;
 		print: self name;
 		nextPut: $>
+]
+
+{ #category : #accessing }
+PBProtobufTypeNode >> wireType [
+
+	( self isEnumType or: [ #( 'int32' 'int64' 'uint32' 'uint64' 'sint32' 'sint64' 'bool' ) includes: self name ])
+		ifTrue: [ ^self class wireTypeVarint ].
+		
+	( #( 'fixed64' 'sfixed64' 'double' ) includes: self name )
+		ifTrue: [ ^self class wireType64bit ].
+		
+	( #( 'sfixed32' 'sfixed32' 'float' ) includes: self name )
+		ifTrue: [ ^self class wireType32bit ].
+		
+	^self class wireTypeLengthDelimited
 ]
