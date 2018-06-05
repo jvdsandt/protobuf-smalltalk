@@ -60,6 +60,12 @@ PBCodedReadStream >> readInt32List [
 ]
 
 { #category : #'write and read' }
+PBCodedReadStream >> readInt64 [
+	
+	^self coder readVarint64: stream
+]
+
+{ #category : #'write and read' }
 PBCodedReadStream >> readMessage: aMessageClass [
 
 	| length substream |
@@ -101,7 +107,7 @@ PBCodedReadStream >> readTag [
 { #category : #'write and read' }
 PBCodedReadStream >> readUInt32 [
 	
-	^self coder readVarintRaw: stream
+	^self coder readVarint32: stream
 ]
 
 { #category : #'write and read' }

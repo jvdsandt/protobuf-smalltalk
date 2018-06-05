@@ -158,6 +158,16 @@ PBCodedWriteStream >> writeField: aFieldNr int32List: aList [
 ]
 
 { #category : #writing }
+PBCodedWriteStream >> writeField: aFieldNr int64: aValue [
+
+	aValue isNil
+		ifTrue: [ ^ self ].
+			
+	self writeTag: aFieldNr type: 0. "Varint"
+	self writeInt64: aValue
+]
+
+{ #category : #writing }
 PBCodedWriteStream >> writeField: aFieldNr message: aMessage [
 
 	| msgBytes bufferStream |
