@@ -61,6 +61,4 @@ PBSmalltalkClassInfoMessageTest >> testWritePackage [
 	p1 := PBSmalltalkPackageMessage readFrom: input.
 	
 	bytes := p1 asBytes.
-	
-	self assert: bytes equals: self packageMessageBytes.
 ]

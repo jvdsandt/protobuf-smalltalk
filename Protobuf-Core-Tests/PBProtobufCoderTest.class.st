@@ -18,7 +18,7 @@ PBProtobufCoderTest >> testVarInt32 [
 	self assert: (self coder encodeVarint32: 300) equals: #[ 2r10101100 2r00000010 ].	
 	self assert: (self coder encodeVarint32: 16r7FFFFFFF) equals: #[ 16rFF 16rFF 16rFF 16rFF 16r07 ].
 	
-	self assert: (self coder encodeVarint32: -1) equals: #[ 16rFF 16rFF 16rFF 16rFF 16r0F ].
+	self assert: (self coder encodeVarint32: -1) equals: #[ 16rFF 16rFF 16rFF 16rFF 16rFF 16rFF 16rFF 16rFF 16rFF 16r01 ].
 
 	#( 0 1 100 100000 16r7FFFFFF -1 -100 -100000 -16r7FFFFFF -16r80000000 ) do: [ :eachInt |
 		self assert: (self coder decodeVarint32: (self coder encodeVarint32: eachInt)) equals: eachInt ].
