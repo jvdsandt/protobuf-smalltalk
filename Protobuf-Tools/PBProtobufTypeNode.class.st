@@ -7,6 +7,9 @@ Class {
 	#instVars : [
 		'name'
 	],
+	#pools : [
+		'PBProtobufConstants'
+	],
 	#category : #'Protobuf-Tools-Model'
 }
 
@@ -121,30 +124,6 @@ PBProtobufTypeNode class >> uint32 [
 PBProtobufTypeNode class >> uint64 [
 
 	^self name: 'uint64'
-]
-
-{ #category : #resources }
-PBProtobufTypeNode class >> wireType32bit [
-
-	^ 5
-]
-
-{ #category : #resources }
-PBProtobufTypeNode class >> wireType64bit [
-
-	^ 1
-]
-
-{ #category : #resources }
-PBProtobufTypeNode class >> wireTypeLengthDelimited [
-
-	^ 2
-]
-
-{ #category : #resources }
-PBProtobufTypeNode class >> wireTypeVarint [
-
-	^ 0
 ]
 
 { #category : #accessing }
@@ -266,13 +245,13 @@ PBProtobufTypeNode >> printOn: aStream [
 PBProtobufTypeNode >> wireType [
 
 	( self isEnumType or: [ #( 'int32' 'int64' 'uint32' 'uint64' 'sint32' 'sint64' 'bool' ) includes: self name ])
-		ifTrue: [ ^self class wireTypeVarint ].
+		ifTrue: [ ^WireTypeVarint ].
 		
 	( #( 'fixed64' 'sfixed64' 'double' ) includes: self name )
-		ifTrue: [ ^self class wireType64bit ].
+		ifTrue: [ ^WireType64bit ].
 		
 	( #( 'sfixed32' 'sfixed32' 'float' ) includes: self name )
-		ifTrue: [ ^self class wireType32bit ].
+		ifTrue: [ ^WireType32bit ].
 		
-	^self class wireTypeLengthDelimited
+	^WireTypeLengthDelimited
 ]

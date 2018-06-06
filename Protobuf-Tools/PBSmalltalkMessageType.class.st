@@ -28,7 +28,11 @@ PBSmalltalkMessageType >> demo [
 	msgNode := PBProtobufMessageNode name: 'TestMsg1'
 		fields: (Array
 			with: (PBProtobufFieldNode number: 1 name: 'fieldOne' typeName: 'string')
-			with: (PBProtobufFieldNode number: 2 name: 'fieldTwo' typeName: 'int64'))
+			with: (PBProtobufFieldNode number: 2 name: 'fieldTwo' typeName: 'int64')
+			with: (PBProtobufFieldNode number: 6 
+				name: 'flag' 
+				type: (PBProtobufTypeNode name: 'bool') 
+				cardinality: #CARDINALITY_REPEATED))
 		options: #().
 		
 	self on: msgNode.

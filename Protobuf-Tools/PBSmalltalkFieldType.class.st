@@ -30,7 +30,9 @@ PBSmalltalkFieldType >> defaultValue [
 { #category : #initialization }
 PBSmalltalkFieldType >> initDefaults [
 
-	variableName := self node name uncapitalized asSymbol
+	variableName := self node name uncapitalized asSymbol.
+	self isCardinalityRepeated
+		ifTrue: [ variableName := variableName, 'List' ]
 ]
 
 { #category : #testing }
@@ -56,7 +58,9 @@ PBSmalltalkFieldType >> on: aMessageNode [
 { #category : #accessing }
 PBSmalltalkFieldType >> parameterName [
 
-	^ self type defaultParameterName
+	^ self isCardinalityRepeated
+		ifTrue: [ self type defaultParameterName, 'List' ]
+		ifFalse: [ self type defaultParameterName ]
 ]
 
 { #category : #accessing }

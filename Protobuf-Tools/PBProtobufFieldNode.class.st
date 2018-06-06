@@ -12,6 +12,9 @@ Class {
 		'typeUrl',
 		'oneofIndex'
 	],
+	#pools : [
+		'PBProtobufConstants'
+	],
 	#category : #'Protobuf-Tools-Model'
 }
 
@@ -123,6 +126,6 @@ PBProtobufFieldNode >> typeUrl [
 PBProtobufFieldNode >> wireType [
 
 	^ self isCardinalityRepeated
-			ifTrue: [ PBProtobufTypeNode wireTypeLengthDelimited ]
+			ifTrue: [ WireTypeLengthDelimited ]
 			ifFalse: [ self type wireType ]
 ]
