@@ -224,6 +224,26 @@ PBProtobufParserTest >> testOption2 [
 ]
 
 { #category : #tests }
+PBProtobufParserTest >> testProto2 [
+
+	super testProto2.
+	
+	self assert: result options size equals: 1.
+	self assert: result messages size equals: 1.
+
+]
+
+{ #category : #tests }
+PBProtobufParserTest >> testProto3 [
+
+	super testProto3.
+	
+	self assert: result options isEmpty.
+	self assert: result messages size equals: 1.
+
+]
+
+{ #category : #tests }
 PBProtobufParserTest >> testStrLiteral1 [
 	
 	super testStrLiteral1.
