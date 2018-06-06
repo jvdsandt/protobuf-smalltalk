@@ -5,6 +5,9 @@ Class {
 		'stream',
 		'coder'
 	],
+	#pools : [
+		'PBProtobufConstants'
+	],
 	#category : #'Protobuf-Core'
 }
 
@@ -14,10 +17,16 @@ PBCodedWriteStream class >> on: aByteStream [
 	^self new on: aByteStream
 ]
 
+{ #category : #'as yet unclassified' }
+PBCodedWriteStream >> buffer: aBlock [
+
+	^ByteArray streamContents: aBlock
+]
+
 { #category : #accessing }
 PBCodedWriteStream >> coder [
 
-	^ coder ifNil: [ coder := PBProtobufCoder ]
+	^ coder
 ]
 
 { #category : #accessing }
@@ -26,115 +35,17 @@ PBCodedWriteStream >> contents [
 	^stream contents
 ]
 
-{ #category : #utilities }
-PBCodedWriteStream >> decodeUtf8: aByteArray [
-
-	^ ZnUTF8Encoder default decodeBytes: aByteArray
-]
-
-{ #category : #utilities }
-PBCodedWriteStream >> decodeZigZag32: anInteger [
-
-	^(anInteger bitAt: 1) = 0
-			ifTrue: [ anInteger >> 1 ]
-			ifFalse: [ ((anInteger + 1) >> 1) negated ]	
-]
-
-{ #category : #utilities }
-PBCodedWriteStream >> decodeZigZag64: anInteger [
-
-	^(anInteger bitAt: 1) = 0
-			ifTrue: [ anInteger >> 1 ]
-			ifFalse: [ ((anInteger + 1) >> 1) negated ]	
-	
-]
-
-{ #category : #utilities }
-PBCodedWriteStream >> encodeUtf8: aString [
-
-	^ ZnUTF8Encoder default encodeString: aString
-]
-
-{ #category : #utilities }
-PBCodedWriteStream >> encodeZigZag32: anInteger [
-
-	^ anInteger >= 0
-			ifTrue: [ (anInteger << 1) ]
-			ifFalse: [ (anInteger negated << 1) - 1 ]
-]
-
-{ #category : #utilities }
-PBCodedWriteStream >> encodeZigZag64: anInteger [
-
-	^ anInteger >= 0
-			ifTrue: [ (anInteger << 1) ]
-			ifFalse: [ (anInteger negated << 1) - 1 ]	
-]
-
 { #category : #initialization }
 PBCodedWriteStream >> on: aByteStream [
 
-	stream := aByteStream
+	self on: aByteStream coder: PBProtobufCoder
 ]
 
-{ #category : #writing }
-PBCodedWriteStream >> putByte: anInteger [
+{ #category : #initialization }
+PBCodedWriteStream >> on: aByteStream coder: aCoder [
 
-	stream nextPut: anInteger
-]
-
-{ #category : #writing }
-PBCodedWriteStream >> putBytes: aByteArray [
-
-	stream nextPutAll: aByteArray
-]
-
-{ #category : #resources }
-PBCodedWriteStream >> wireTypeFixed32 [
-
-	^5
-]
-
-{ #category : #resources }
-PBCodedWriteStream >> wireTypeFixed64 [
-
-	^1
-]
-
-{ #category : #resources }
-PBCodedWriteStream >> wireTypeLengthDelimited [
-
-	^2
-]
-
-{ #category : #resources }
-PBCodedWriteStream >> wireTypeVarint [
-
-	^0
-]
-
-{ #category : #writing }
-PBCodedWriteStream >> writeByteArray: value [
-
-	self writeUInt32: value size.
-	self putBytes: value
-]
-
-{ #category : #writing }
-PBCodedWriteStream >> writeDouble: aFloat [
-
-	stream nextPutAll: (
-		(ByteArray new: 8)
-			doubleAt: 1 put: aFloat;
-			yourself)
-			
-]
-
-{ #category : #writing }
-PBCodedWriteStream >> writeDouble: aValue field: aFieldNr [
-
-	self writeTag: aFieldNr type: self wireTypeFixed64.
-	self writeDouble: aValue
+	stream := aByteStream.
+	coder := aCoder
 ]
 
 { #category : #writing }
@@ -143,18 +54,144 @@ PBCodedWriteStream >> writeField: aFieldNr bool: aValue [
 
 	aValue = true
 		ifTrue: [ 
-			self writeTag: aFieldNr type: 0. "Varint"
-			self coder writeVarintRaw: 1 on: stream ]
+			self writeTag: aFieldNr type: WireTypeVarint.
+			coder writeVarintRaw: 1 on: stream ]
+]
+
+{ #category : #writing }
+PBCodedWriteStream >> writeField: aFieldNr boolList: aList [
+	
+	aList isEmptyOrNil
+		ifTrue: [ ^ self ].
+
+	self writeTag: aFieldNr type: WireTypeLengthDelimited.
+	coder writeVarintRaw: aList size on: stream.
+	aList do: [ :eachBool |
+		coder writeVarintRaw: (eachBool ifTrue: [ 1 ] ifFalse: [ 0 ]) on: stream ]
+]
+
+{ #category : #writing }
+PBCodedWriteStream >> writeField: aFieldNr bytes: aByteArray [
+
+	aByteArray isEmptyOrNil
+		ifTrue: [ ^ self ].
+		
+	self writeTag: aFieldNr type: WireTypeLengthDelimited.
+	coder writeVarintRaw: aByteArray size on: stream.
+	stream nextPutAll: aByteArray
+]
+
+{ #category : #writing }
+PBCodedWriteStream >> writeField: aFieldNr double: aValue [
+
+	aValue isNil
+		ifTrue: [ ^ self ].
+			
+	self writeTag: aFieldNr type: WireType64bit.
+	coder writeDouble: aValue on: stream
+]
+
+{ #category : #writing }
+PBCodedWriteStream >> writeField: aFieldNr doubleList: aList [
+
+	aList isEmptyOrNil
+		ifTrue: [ ^ self ].
+			
+	self writeTag: aFieldNr type: WireTypeLengthDelimited.
+	coder writeVarintRaw: aList size * 8 on: stream.
+	aList do: [ :eachInt |
+		coder writeDouble: eachInt on: stream ]
+]
+
+{ #category : #writing }
+PBCodedWriteStream >> writeField: aFieldNr fixed32: aValue [
+
+	aValue isNil
+		ifTrue: [ ^ self ].
+			
+	self writeTag: aFieldNr type: WireType32bit.
+	coder writeFixed32: aValue on: stream
+]
+
+{ #category : #writing }
+PBCodedWriteStream >> writeField: aFieldNr fixed32List: aList [
+
+	aList isEmptyOrNil
+		ifTrue: [ ^ self ].
+			
+	self writeTag: aFieldNr type: WireTypeLengthDelimited.
+	coder writeVarintRaw: aList size * 4 on: stream.
+	aList do: [ :eachInt |
+		coder writeFixed32: eachInt on: stream ]
+]
+
+{ #category : #writing }
+PBCodedWriteStream >> writeField: aFieldNr fixed64: aValue [
+
+	aValue isNil
+		ifTrue: [ ^ self ].
+			
+	self writeTag: aFieldNr type: WireType64bit.
+	coder writeFixed64: aValue on: stream
+]
+
+{ #category : #writing }
+PBCodedWriteStream >> writeField: aFieldNr fixed64List: aList [
+
+	aList isEmptyOrNil
+		ifTrue: [ ^ self ].
+			
+	self writeTag: aFieldNr type: WireTypeLengthDelimited.
+	coder writeVarintRaw: aList size * 8 on: stream.
+	aList do: [ :eachInt |
+		coder writeFixed64: eachInt on: stream ]
+]
+
+{ #category : #writing }
+PBCodedWriteStream >> writeField: aFieldNr float: aValue [
+
+	aValue isNil
+		ifTrue: [ ^ self ].
+			
+	self writeTag: aFieldNr type: WireType64bit.
+	coder writeFloat: aValue on: stream
+]
+
+{ #category : #writing }
+PBCodedWriteStream >> writeField: aFieldNr floatList: aList [
+
+	aList isEmptyOrNil
+		ifTrue: [ ^ self ].
+			
+	self writeTag: aFieldNr type: WireTypeLengthDelimited.
+	coder writeVarintRaw: aList size * 4 on: stream.
+	aList do: [ :eachInt |
+		coder writeFloat: eachInt on: stream ]
+]
+
+{ #category : #writing }
+PBCodedWriteStream >> writeField: aFieldNr int32: aValue [
+
+	aValue isNil
+		ifTrue: [ ^ self ].
+			
+	self writeTag: aFieldNr type: WireTypeVarint.
+	coder writeVarint32: aValue on: stream
 ]
 
 { #category : #writing }
 PBCodedWriteStream >> writeField: aFieldNr int32List: aList [
 
-	aList isNil
+	| bufStream |
+
+	aList isEmptyOrNil
 		ifTrue: [ ^ self ].
 		
-	aList do: [ :eachString |
-		self writeField: aFieldNr string: eachString ]
+	bufStream := WriteStream on: (ByteArray new: aList size * 4).
+	aList do: [ :eachInteger |
+		coder writeVarint32: eachInteger on: bufStream ].
+	
+	self writeField: aFieldNr bytes: bufStream contents
 ]
 
 { #category : #writing }
@@ -163,26 +200,20 @@ PBCodedWriteStream >> writeField: aFieldNr int64: aValue [
 	aValue isNil
 		ifTrue: [ ^ self ].
 			
-	self writeTag: aFieldNr type: 0. "Varint"
-	self writeInt64: aValue
+	self writeTag: aFieldNr type: WireTypeVarint.
+	coder writeVarint64: aValue on: stream
 ]
 
 { #category : #writing }
 PBCodedWriteStream >> writeField: aFieldNr message: aMessage [
 
-	| msgBytes bufferStream |
+	| msgBytes |
 
 	aMessage isNil
 		ifTrue: [ ^ self ].
-
-	self writeTag: aFieldNr type: 2. "length_delimited"
-
-	bufferStream := WriteStream on: (ByteArray new: 512).
-	aMessage writeTo: (self class on: bufferStream).
-	msgBytes := bufferStream contents.
-	
-	self coder writeVarintRaw: msgBytes size on: stream.
-	stream nextPutAll: msgBytes
+		
+	msgBytes := self buffer: [ :s | aMessage writeTo: (self class on: s) ].
+	self writeField: aFieldNr bytes: msgBytes.
 ]
 
 { #category : #writing }
@@ -196,12 +227,79 @@ PBCodedWriteStream >> writeField: aFieldNr messageList: aList [
 ]
 
 { #category : #writing }
+PBCodedWriteStream >> writeField: aFieldNr sfixed32: aValue [
+
+	aValue isNil
+		ifTrue: [ ^ self ].
+			
+	self writeTag: aFieldNr type: WireType32bit.
+	coder writeSFixed32: aValue on: stream
+]
+
+{ #category : #writing }
+PBCodedWriteStream >> writeField: aFieldNr sfixed32List: aList [
+
+	aList isEmptyOrNil
+		ifTrue: [ ^ self ].
+			
+	self writeTag: aFieldNr type: WireTypeLengthDelimited.
+	coder writeVarintRaw: aList size * 4 on: stream.
+	aList do: [ :eachInt |
+		coder writeSFixed32: eachInt on: stream ]
+]
+
+{ #category : #writing }
+PBCodedWriteStream >> writeField: aFieldNr sfixed64: aValue [
+
+	aValue isNil
+		ifTrue: [ ^ self ].
+			
+	self writeTag: aFieldNr type: WireType64bit.
+	coder writeSFixed64: aValue on: stream
+]
+
+{ #category : #writing }
+PBCodedWriteStream >> writeField: aFieldNr sfixed64List: aList [
+
+	aList isEmptyOrNil
+		ifTrue: [ ^ self ].
+			
+	self writeTag: aFieldNr type: WireTypeLengthDelimited.
+	coder writeVarintRaw: aList size * 8 on: stream.
+	aList do: [ :eachInt |
+		coder writeSFixed64: eachInt on: stream ]
+]
+
+{ #category : #writing }
+PBCodedWriteStream >> writeField: aFieldNr sint32: aValue [
+
+	aValue isNil
+		ifTrue: [ ^ self ].
+			
+	self writeTag: aFieldNr type: WireTypeVarint.
+	coder writeVarintRaw: (coder encodeZigZag32: aValue) on: stream
+]
+
+{ #category : #writing }
+PBCodedWriteStream >> writeField: aFieldNr sint64: aValue [
+
+	aValue isNil
+		ifTrue: [ ^ self ].
+			
+	self writeTag: aFieldNr type: WireTypeVarint.
+	coder writeVarintRaw: (coder encodeZigZag64: aValue) on: stream
+]
+
+{ #category : #writing }
 PBCodedWriteStream >> writeField: aFieldNr string: aValue [
 
-	aValue notNil
-		ifTrue: [ 
-			self writeTag: aFieldNr type: 2. "length_delimited"
-			self writeString: aValue ]
+	| bytes |
+	
+	aValue isNil
+		ifTrue: [ ^ self ].
+		
+	bytes := self buffer: [ :s | coder writeString: aValue on: s ].
+	self writeField: aFieldNr bytes: bytes
 ]
 
 { #category : #writing }
@@ -215,75 +313,27 @@ PBCodedWriteStream >> writeField: aFieldNr stringList: aList [
 ]
 
 { #category : #writing }
+PBCodedWriteStream >> writeField: aFieldNr uint32: aValue [
+
+	aValue isNil
+		ifTrue: [ ^ self ].
+			
+	self writeTag: aFieldNr type: WireTypeVarint.
+	coder writeVarintRaw: aValue on: stream
+]
+
+{ #category : #writing }
 PBCodedWriteStream >> writeField: aFieldNr uint64: aValue [
 
 	aValue isNil
 		ifTrue: [ ^ self ].
 			
-	self writeTag: aFieldNr type: 0. "Varint"
-	self writeUInt64: aValue
-]
-
-{ #category : #writing }
-PBCodedWriteStream >> writeFixed32: anInteger [
-
-	self 
-		putByte: (anInteger bitAnd: 16rFF);
-		putByte: ((anInteger bitShift: 8) bitAnd: 16rFF);
-		putByte: ((anInteger bitShift: 16) bitAnd: 16rFF);
-		putByte: ((anInteger bitShift: 24) bitAnd: 16rFF)
-]
-
-{ #category : #writing }
-PBCodedWriteStream >> writeFloat: aFloat [
-
-	stream nextPutAll: (
-		(ByteArray new: 4)
-			floatAt: 1 put: aFloat;
-			yourself)
-			
-]
-
-{ #category : #writing }
-PBCodedWriteStream >> writeFloat: aValue field: aFieldNr [
-
-	self writeTag: aFieldNr type: self wireTypeFixed32.
-	self writeFloat: aValue
-]
-
-{ #category : #writing }
-PBCodedWriteStream >> writeInt32: anInteger [
-
-	self coder writeVarint32: anInteger on: stream
-]
-
-{ #category : #writing }
-PBCodedWriteStream >> writeInt32: aValue field: aFieldNr [
-
-	self writeTag: aFieldNr type: self wireTypeVarInt.
-	self writeInt32: aValue
-]
-
-{ #category : #writing }
-PBCodedWriteStream >> writeString: aValue [
-
-	self writeByteArray: (self coder encodeUtf8: aValue)
+	self writeTag: aFieldNr type: WireTypeVarint.
+	coder writeVarintRaw: aValue on: stream
 ]
 
 { #category : #writing }
 PBCodedWriteStream >> writeTag: aFieldNr type: aWireTypeNr [
 
-	self coder writeVarintRaw: (self coder makeTag: aFieldNr wireType: aWireTypeNr) on: stream
-]
-
-{ #category : #writing }
-PBCodedWriteStream >> writeUInt32: anInteger [
-
-	self coder writeVarintRaw: anInteger on: stream
-]
-
-{ #category : #writing }
-PBCodedWriteStream >> writeUInt64: anInteger [
-
-	self coder writeVarintRaw: anInteger on: stream
+	coder writeVarintRaw: (coder makeTag: aFieldNr wireType: aWireTypeNr) on: stream
 ]

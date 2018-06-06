@@ -5,6 +5,9 @@ Class {
 		'stream',
 		'coder'
 	],
+	#pools : [
+		'PBProtobufConstants'
+	],
 	#category : #'Protobuf-Core'
 }
 
@@ -23,19 +26,133 @@ PBCodedReadStream >> atEnd [
 { #category : #accessing }
 PBCodedReadStream >> coder [
 
-	^ coder ifNil: [ coder := PBProtobufCoder ]
+	^ coder
 ]
 
 { #category : #'instance creation' }
 PBCodedReadStream >> on: aByteStream [
 
-	stream := aByteStream
+	self on: aByteStream coder: PBProtobufCoder
+]
+
+{ #category : #'instance creation' }
+PBCodedReadStream >> on: aByteStream coder: aCoder [
+
+	stream := aByteStream.
+	coder := aCoder
 ]
 
 { #category : #'write and read' }
 PBCodedReadStream >> readBool [
 
-	^ (self coder readVarintRaw: stream) ~= 0
+	^ (coder readVarintRaw: stream) ~= 0
+]
+
+{ #category : #'write and read' }
+PBCodedReadStream >> readBoolList [
+
+	| size list limit |
+	
+	size := coder readVarintRaw: stream.
+	list := OrderedCollection new: size.
+	limit := stream position + size.
+	[ stream position < limit ]
+		whileTrue: [ list add: (coder readVarintRaw: stream) ~= 0 ].
+	stream position = limit
+		ifFalse: [ self error: 'wrong' ].
+	^ list
+]
+
+{ #category : #'write and read' }
+PBCodedReadStream >> readDouble [
+	
+	^coder readDouble: stream
+]
+
+{ #category : #'write and read' }
+PBCodedReadStream >> readDoubleList [
+
+	| length size list |
+	
+	length := coder readVarintRaw: stream.
+	length \\ 8 ~= 0
+		ifTrue: [ self error: 'Invalid double list length' ].
+	size := length / 8.
+	
+	list := OrderedCollection new: size.
+	size timesRepeat: [ 
+		list add: (coder readDouble: stream) ].
+
+	^ list
+]
+
+{ #category : #'write and read' }
+PBCodedReadStream >> readFixed32 [
+	
+	^coder readFixed32: stream
+]
+
+{ #category : #'write and read' }
+PBCodedReadStream >> readFixed32List [
+
+	| length size list |
+	
+	length := coder readVarintRaw: stream.
+	length \\ 4 ~= 0
+		ifTrue: [ self error: 'Invalid fixed32 list length' ].
+	size := length / 4.
+		
+	list := OrderedCollection new: size.
+	size timesRepeat: [ 
+		list add: (coder readFixed32: stream) ].
+
+	^ list
+]
+
+{ #category : #'write and read' }
+PBCodedReadStream >> readFixed64 [
+	
+	^coder readFixed64: stream
+]
+
+{ #category : #'write and read' }
+PBCodedReadStream >> readFixed64List [
+
+	| length size list |
+	
+	length := coder readVarintRaw: stream.
+	length \\ 8 ~= 0
+		ifTrue: [ self error: 'Invalid fixed64 list length' ].
+	size := length // 8.
+		
+	list := OrderedCollection new: size.
+	size timesRepeat: [ 
+		list add: (coder readFixed64: stream) ].
+
+	^ list
+]
+
+{ #category : #'write and read' }
+PBCodedReadStream >> readFloat [
+	
+	^coder readFloat: stream
+]
+
+{ #category : #'write and read' }
+PBCodedReadStream >> readFloatList [
+
+	| length size list |
+	
+	length := coder readVarintRaw: stream.
+	length \\ 4 ~= 0
+		ifTrue: [ self error: 'Invalid float list length' ].
+	size := length / 4.
+		
+	list := OrderedCollection new: size.
+	size timesRepeat: [ 
+		list add: (coder readFloat: stream) ].
+
+	^ list
 ]
 
 { #category : #'write and read' }
@@ -83,14 +200,69 @@ PBCodedReadStream >> readMessage: aMessageClass [
 ]
 
 { #category : #'write and read' }
+PBCodedReadStream >> readSFixed32 [
+	
+	^coder readSFixed32: stream
+]
+
+{ #category : #'write and read' }
+PBCodedReadStream >> readSFixed32List [
+
+	| length list |
+	
+	length := coder readVarintRaw: stream.
+	length \\ 4 ~= 0
+		ifTrue: [ self error: 'Invalid sfixed32 list length' ].
+		
+	list := OrderedCollection new: length / 4.
+	list size timesRepeat: [ 
+		list add: (coder readSFixed32: stream) ].
+
+	^ list
+]
+
+{ #category : #'write and read' }
+PBCodedReadStream >> readSFixed64 [
+	
+	^coder readSFixed64: stream
+]
+
+{ #category : #'write and read' }
+PBCodedReadStream >> readSFixed64List [
+
+	| length size list |
+	
+	length := coder readVarintRaw: stream.
+	length \\ 8 ~= 0
+		ifTrue: [ self error: 'Invalid sfixed64 list length' ].
+	size := length // 8.
+		
+	list := OrderedCollection new: size.
+	size timesRepeat: [ 
+		list add: (coder readSFixed64: stream) ].
+
+	^ list
+]
+
+{ #category : #'write and read' }
+PBCodedReadStream >> readSInt32 [
+	
+	^coder decodeZigZag32: (coder readVarintRaw: stream)
+]
+
+{ #category : #'write and read' }
+PBCodedReadStream >> readSInt64 [
+	
+	^coder decodeZigZag64: (coder readVarintRaw: stream)
+]
+
+{ #category : #'write and read' }
 PBCodedReadStream >> readString [
 
-	| byteCount bytes |
+	| byteCount |
 	
-	byteCount := self coder readVarintRaw: stream.
-	bytes := stream next: byteCount.
-	
-	^self coder decodeUtf8: bytes
+	byteCount := coder readVarintRaw: stream.
+	^ coder readString: byteCount from: stream
 ]
 
 { #category : #'as yet unclassified' }

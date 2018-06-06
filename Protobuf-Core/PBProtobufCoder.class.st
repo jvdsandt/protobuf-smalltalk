@@ -1,6 +1,9 @@
 Class {
 	#name : #PBProtobufCoder,
 	#superclass : #Object,
+	#pools : [
+		'PBProtobufConstants'
+	],
 	#category : #'Protobuf-Core'
 }
 
@@ -86,34 +89,104 @@ PBProtobufCoder class >> getTagWireType: anInteger [
 	^ anInteger bitAnd: 2r111
 ]
 
-{ #category : #'coder-tags' }
+{ #category : #testing }
 PBProtobufCoder class >> is32bitField: aTag [
 
-	^(self getTagWireType: aTag) = 5
+	^(self getTagWireType: aTag) = WireType32bit
 ]
 
-{ #category : #'coder-tags' }
+{ #category : #testing }
 PBProtobufCoder class >> is64bitField: aTag [
 
-	^(self getTagWireType: aTag) = 1
+	^(self getTagWireType: aTag) = WireType64bit
 ]
 
-{ #category : #'coder-tags' }
+{ #category : #testing }
 PBProtobufCoder class >> isLengthDelimitedField: aTag [
 
-	^(self getTagWireType: aTag) = 2
+	^(self getTagWireType: aTag) = WireTypeLengthDelimited
 ]
 
-{ #category : #'coder-tags' }
+{ #category : #testing }
 PBProtobufCoder class >> isVarintField: aTag [
 
-	^(self getTagWireType: aTag) = 0
+	^(self getTagWireType: aTag) = WireTypeVarint
 ]
 
 { #category : #'coder-tags' }
 PBProtobufCoder class >> makeTag: aFieldNr wireType: aTypeNr [
 
 	^ (aFieldNr << 3) bitOr: aTypeNr
+]
+
+{ #category : #'coder-fixed' }
+PBProtobufCoder class >> readDouble: aByteStream [
+
+	^ (aByteStream next: 8) doubleAt: 1
+]
+
+{ #category : #'coder-fixed' }
+PBProtobufCoder class >> readFixed32: aByteStream [
+
+	| n |
+	n := aByteStream next.
+	n := (n bitShift: 8) + aByteStream next.
+	n := (n bitShift: 8) + aByteStream next.
+	n := (n bitShift: 8) + aByteStream next.
+	^ n
+]
+
+{ #category : #'coder-fixed' }
+PBProtobufCoder class >> readFixed64: aByteStream [
+
+	| n |
+	n := aByteStream next.
+	7 timesRepeat: [ 
+		n := (n bitShift: 8) + aByteStream next ].
+	^ n
+]
+
+{ #category : #'coder-fixed' }
+PBProtobufCoder class >> readFloat: aByteStream [
+
+	^ (aByteStream next: 4) floatAt: 1
+]
+
+{ #category : #'coder-fixed' }
+PBProtobufCoder class >> readSFixed32: aByteStream [
+
+	| n firstDigit |
+	n := firstDigit := aByteStream next.
+	n := (n bitShift: 8) + aByteStream next.
+	n := (n bitShift: 8) + aByteStream next.
+	n := (n bitShift: 8) + aByteStream next.
+	firstDigit >= 128 ifTrue: [n := -16r100000000 + n].  "decode negative 32-bit integer"
+	^ n
+
+]
+
+{ #category : #'coder-fixed' }
+PBProtobufCoder class >> readSFixed64: aByteStream [
+
+	| n firstDigit |
+	n := firstDigit := aByteStream next.
+	7 timesRepeat: [ 
+		n := (n bitShift: 8) + aByteStream next ].
+	firstDigit >= 128 ifTrue: [n := -16r10000000000000000 + n].  "decode negative 64-bit integer"
+	^ n
+
+]
+
+{ #category : #'coder-length-delimited' }
+PBProtobufCoder class >> readString: aByteSize from: aByteStream [
+
+	| decoder limit |
+	
+	decoder := self utf8Encoder.
+	limit := aByteStream position + aByteSize.
+	^ String streamContents: [ :s |
+		[ aByteStream position < limit ]
+			whileTrue: [ s nextPut: (decoder nextFromStream: aByteStream) ] ]
 ]
 
 { #category : #'coder-varint' }
@@ -149,6 +222,78 @@ PBProtobufCoder class >> readVarintRaw: aByteStream [
 		byte < 128 ]
 			whileFalse: [ shift := shift + 7 ].
 	^ val
+]
+
+{ #category : #'coder-length-delimited' }
+PBProtobufCoder class >> utf8Encoder [
+
+	^ ZnUTF8Encoder default
+]
+
+{ #category : #'coder-fixed' }
+PBProtobufCoder class >> writeDouble: aFloat on: aByteStream [
+
+	aByteStream nextPutAll: (
+		(ByteArray new: 8)
+			doubleAt: 1 put: aFloat;
+			yourself)
+
+]
+
+{ #category : #'coder-fixed' }
+PBProtobufCoder class >> writeFixed32: anInteger on: aByteStream [
+
+	aByteStream nextPut: (anInteger digitAt: 4).
+	aByteStream nextPut: (anInteger digitAt: 3).
+	aByteStream nextPut: (anInteger digitAt: 2).
+	aByteStream nextPut: (anInteger digitAt: 1).
+
+]
+
+{ #category : #'coder-fixed' }
+PBProtobufCoder class >> writeFixed64: anInteger on: aByteStream [
+
+	aByteStream nextPut: (anInteger digitAt: 8).
+	aByteStream nextPut: (anInteger digitAt: 7).
+	aByteStream nextPut: (anInteger digitAt: 6).
+	aByteStream nextPut: (anInteger digitAt: 5).
+	aByteStream nextPut: (anInteger digitAt: 4).
+	aByteStream nextPut: (anInteger digitAt: 3).
+	aByteStream nextPut: (anInteger digitAt: 2).
+	aByteStream nextPut: (anInteger digitAt: 1).
+
+]
+
+{ #category : #'coder-fixed' }
+PBProtobufCoder class >> writeFloat: aFloat on: aByteStream [
+
+	aByteStream nextPutAll: (
+		(ByteArray new: 4)
+			floatAt: 1 put: aFloat;
+			yourself)
+
+]
+
+{ #category : #'coder-fixed' }
+PBProtobufCoder class >> writeSFixed32: anInteger on: aByteStream [
+
+	self writeFixed32: (anInteger < 0
+		ifTrue: [ 16r100000000 + anInteger ]
+		ifFalse: [ anInteger ]) on: aByteStream
+]
+
+{ #category : #'coder-fixed' }
+PBProtobufCoder class >> writeSFixed64: anInteger on: aByteStream [
+
+	self writeFixed64: (anInteger < 0
+		ifTrue: [ 16r10000000000000000 + anInteger ]
+		ifFalse: [ anInteger ]) on: aByteStream
+]
+
+{ #category : #'coder-length-delimited' }
+PBProtobufCoder class >> writeString: aString on: aByteStream [
+
+	self utf8Encoder next: aString size putAll: aString startingAt: 1 toStream: aByteStream
 ]
 
 { #category : #'coder-varint' }
