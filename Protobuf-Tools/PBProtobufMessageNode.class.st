@@ -28,6 +28,12 @@ PBProtobufMessageNode >> initWithName: aName fields: aFieldColl options: anOptio
 	options := anOptionColl asArray
 ]
 
+{ #category : #testing }
+PBProtobufMessageNode >> isMessageNode [
+
+	^ true
+]
+
 { #category : #accessing }
 PBProtobufMessageNode >> name [
 	^ name

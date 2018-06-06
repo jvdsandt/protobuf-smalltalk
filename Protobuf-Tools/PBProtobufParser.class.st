@@ -39,7 +39,7 @@ PBProtobufParser >> decimalLiteral [
 
 ]
 
-{ #category : #'grammar-literals' }
+{ #category : #'grammar-toplevel' }
 PBProtobufParser >> enum [
 
 	^super enum ==> [ :array |
@@ -153,7 +153,7 @@ PBProtobufParser >> mapField [
 			cardinality: fCardinality ]
 ]
 
-{ #category : #'grammar-literals' }
+{ #category : #'grammar-toplevel' }
 PBProtobufParser >> message [
 
 	^super message ==> [ :array |
@@ -194,10 +194,19 @@ PBProtobufParser >> option [
 		PBProtobufOptionNode name: (array at: 3) value: (array at: 5) ]
 ]
 
-{ #category : #'grammar-literals' }
+{ #category : #'grammar-toplevel' }
 PBProtobufParser >> package [
 
 	^super package ==> [ :array | PBProtobufPackageNode name: (array at: 3) ]
+]
+
+{ #category : #'grammar-toplevel' }
+PBProtobufParser >> proto [
+
+	^super proto ==> [ :array | 
+		| relevantNodes |
+		relevantNodes := (array at: 3).
+		PBProtobufFileNode fromNodes: relevantNodes ]
 ]
 
 { #category : #'grammar-literals' }

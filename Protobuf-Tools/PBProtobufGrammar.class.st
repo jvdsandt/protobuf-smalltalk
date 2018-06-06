@@ -260,7 +260,7 @@ PBProtobufGrammar >> ident [
 	^ (letter, word star) flatten
 ]
 
-{ #category : #'grammar-literals' }
+{ #category : #'grammar-toplevel' }
 PBProtobufGrammar >> import [
 
 	^ 'import' asPParser, whiteSpace plus, (('weak' asPParser / 'public' asPParser), whiteSpace plus) optional, strLiteral, $; asPParser trim

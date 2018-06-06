@@ -40,6 +40,12 @@ PBProtobufNode >> isFieldNode [
 ]
 
 { #category : #testing }
+PBProtobufNode >> isMessageNode [
+
+	^false
+]
+
+{ #category : #testing }
 PBProtobufNode >> isOptionNode [
 
 	^false
