@@ -66,7 +66,7 @@ PBSmalltalkClassInfoMessage >> name: anObject [
 	^ name := anObject
 ]
 
-{ #category : #'instance creation' }
+{ #category : #'input-output' }
 PBSmalltalkClassInfoMessage >> readFrom: input [
 
 	| done dict |
@@ -111,7 +111,7 @@ PBSmalltalkClassInfoMessage >> superclassName: anObject [
 	^ superclassName := anObject
 ]
 
-{ #category : #'instance creation' }
+{ #category : #'input-output' }
 PBSmalltalkClassInfoMessage >> writeTo: output [
 
 	output writeField: 1 string: name.

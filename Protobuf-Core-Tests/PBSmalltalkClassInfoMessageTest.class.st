@@ -4,14 +4,14 @@ Class {
 	#category : #'Protobuf-Core-Tests'
 }
 
-{ #category : #'as yet unclassified' }
+{ #category : #resources }
 PBSmalltalkClassInfoMessageTest >> messageBytes [
 	"'C:\Stuff\pbdemo-java\ExportProtobufTest.pb' asFileReference binaryReadStream contents"
 	
 	^#[ 10 10 68 105 99 116 105 111 110 97 114 121 18 10 67 111 108 108 101 99 116 105 111 110 34 5 105 110 100 101 120 34 5 97 114 114 97 121 40 149 154 239 58 74 14 100 162 254 255 255 255 255 255 255 255 1 159 141 6 80 1 ]
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #resources }
 PBSmalltalkClassInfoMessageTest >> packageMessageBytes [
 	"'C:\Stuff\pbdemo-java\ExportProtobufPackage.pb' asFileReference binaryReadStream contents"
 	
@@ -52,6 +52,51 @@ PBSmalltalkClassInfoMessageTest >> testReadPackage [
 ]
 
 { #category : #tests }
+PBSmalltalkClassInfoMessageTest >> testWriteClassInfo [
+
+	| msg bytes result |
+	
+	msg := PBSmalltalkClassInfoMessage new
+			name: 'C';
+			instVarNameList: #( 't' 'n' );
+			yourself.
+		
+	bytes := ByteArray streamContents: [ :s |
+		(PBCodedWriteStream on: s) writeField: 1 message: msg ].
+	
+	self assert: bytes equals: #[10 9 10 1 67 34 1 116 34 1 110].
+	
+	result := (PBCodedReadStream on: bytes readStream) 
+		readTag;
+		readMessage: PBSmalltalkClassInfoMessage.
+		
+	self assert: result name equals: msg name
+]
+
+{ #category : #tests }
+PBSmalltalkClassInfoMessageTest >> testWriteClassInfoList [ 
+
+	| list bytes input result |
+	
+	list := Number withAllSubclasses collect: [ :eachClass |
+		PBSmalltalkClassInfoMessage new
+			name: eachClass name asString;
+			instVarNameList: eachClass instVarNames;
+			yourself ].
+		
+	bytes := ByteArray streamContents: [ :s |
+		(PBCodedWriteStream on: s) writeField: 1 messageList: list ].
+	
+	input := PBCodedReadStream on: bytes readStream.
+	result := (1 to: list size) collect: [ :index |
+		self assert: input readTag equals: 2r1010.
+		input readMessage: PBSmalltalkClassInfoMessage ].
+	
+	1 to: list size do: [ :index |
+		self assert: (list at: index) name equals: (result at: index) name ]
+]
+
+{ #category : #tests }
 PBSmalltalkClassInfoMessageTest >> testWritePackage [
 
 	| input p1 bytes |
@@ -61,4 +106,5 @@ PBSmalltalkClassInfoMessageTest >> testWritePackage [
 	p1 := PBSmalltalkPackageMessage readFrom: input.
 	
 	bytes := p1 asBytes.
+	self assert: bytes equals: self packageMessageBytes
 ]

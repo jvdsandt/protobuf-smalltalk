@@ -11,50 +11,55 @@ PBCodedWriteStreamTest >> newStream [
 ]
 
 { #category : #tests }
-PBCodedWriteStreamTest >> testEncodeZigZag [
+PBCodedWriteStreamTest >> testInteger32Fields [
 
 	| stream |
 	
 	stream := self newStream.
-	self assert: (stream encodeZigZag32: 0) equals: 0.
-	self assert: (stream encodeZigZag32: -1) equals: 1.
-	self assert: (stream encodeZigZag32: 1) equals: 2.
-	self assert: (stream encodeZigZag32: -2) equals: 3.
-	self assert: (stream encodeZigZag32: 16r3FFFFFFF) equals: 16r7FFFFFFE.
-	self assert: (stream encodeZigZag32: -16r40000000) equals: 16r7FFFFFFF.
-	self assert: (stream encodeZigZag32: 16r7FFFFFFF) equals: 16rFFFFFFFE.
-	self assert: (stream encodeZigZag32: -16r80000000) equals: 16rFFFFFFFF.
+	stream writeField: 1 int32: 1.
+	self assert: stream contents equals: #[ 2r00001000 2r00000001 ].
 
-	self assert: (stream encodeZigZag64: 0) equals: 0.
-	self assert: (stream encodeZigZag64: -1) equals: 1.
-	self assert: (stream encodeZigZag64: 1) equals: 2.
-	self assert: (stream encodeZigZag64: -2) equals: 3.
-	
-	self assert: (stream decodeZigZag32: 0) equals: 0.
-	self assert: (stream decodeZigZag32: 1) equals: -1.
-	self assert: (stream decodeZigZag32: 2) equals: 1.
-	self assert: (stream decodeZigZag32: 3) equals: -2.
-	
-	self assert: (stream encodeZigZag32: (stream decodeZigZag32: 0)) equals: 0.
-	self assert: (stream encodeZigZag32: (stream decodeZigZag32: 1)) equals: 1.
-	"self assert: (stream encodeZigZag32: (stream decodeZigZag32: -1)) equals: -1."
-	self assert: (stream encodeZigZag32: (stream decodeZigZag32: 14927)) equals: 14927.
-	"self assert: (stream encodeZigZag32: (stream decodeZigZag32: -3612)) equals: -3612."
+	stream := self newStream.
+	stream writeField: 1 uint32: 1.
+	self assert: stream contents equals: #[ 2r00001000 2r00000001 ].
+
+	stream := self newStream.
+	stream writeField: 1 sint32: 1.
+	self assert: stream contents equals: #[ 2r1000 2r00000010 ].
+
+	stream := self newStream.
+	stream writeField: 1 fixed32: 1.
+	self assert: stream contents equals: #[ 2r00001101 0 0 0 1 ].
+
+	stream := self newStream.
+	stream writeField: 1 int32: nil.
+	self assert: stream contents equals: #[ ].
 
 ]
 
 { #category : #tests }
-PBCodedWriteStreamTest >> testUInt32 [
+PBCodedWriteStreamTest >> testInteger64Fields [
 
 	| stream |
 	
 	stream := self newStream.
-	stream writeUInt32: 1.
-	self assert: stream contents equals: #[ 2r00000001 ].
+	stream writeField: 1 int64: 1.
+	self assert: stream contents equals: #[ 2r00001000 2r00000001 ].
 
 	stream := self newStream.
-	stream writeUInt32: 300.
-	self assert: stream contents equals: #[ 2r10101100 2r00000010 ].
-	
+	stream writeField: 1 uint64: 1.
+	self assert: stream contents equals: #[ 2r00001000 2r00000001 ].
+
+	stream := self newStream.
+	stream writeField: 1 sint64: 1.
+	self assert: stream contents equals: #[ 2r1000 2r00000010 ].
+
+	stream := self newStream.
+	stream writeField: 1 fixed64: 1.
+	self assert: stream contents equals: #[ 2r00001001 0 0 0 0 0 0 0 1 ].
+
+	stream := self newStream.
+	stream writeField: 1 int64: nil.
+	self assert: stream contents equals: #[ ].
 
 ]
