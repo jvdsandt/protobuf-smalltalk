@@ -394,7 +394,7 @@ PBProtobufGrammar >> package [
 { #category : #'grammar-toplevel' }
 PBProtobufGrammar >> proto [
 
-	^ comment star, syntax, (comment / import / package / option / topLevelDef / emptyStatement) star
+	^ comment star, syntax, (comment / import / package / option / message / enum / service / emptyStatement) star
 ]
 
 { #category : #primitives }

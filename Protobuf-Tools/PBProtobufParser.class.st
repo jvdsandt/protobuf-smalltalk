@@ -133,6 +133,15 @@ PBProtobufParser >> hexLiteral [
 
 ]
 
+{ #category : #'grammar-toplevel' }
+PBProtobufParser >> import [
+
+	^super import ==> [ :array | 
+		PBProtobufImportNode name: (array at: 4)
+			public: (((array at: 3) ifNil: [ #() ]) includes: 'public')
+			weak: (((array at: 3) ifNil: [ #() ]) includes: 'weak') ]
+]
+
 { #category : #accessing }
 PBProtobufParser >> mapField [
 

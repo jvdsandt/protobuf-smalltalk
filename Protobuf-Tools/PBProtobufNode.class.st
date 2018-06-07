@@ -1,3 +1,6 @@
+"
+I am the base class for all the PBProtobuf parse nodes.
+"
 Class {
 	#name : #PBProtobufNode,
 	#superclass : #Object,
@@ -40,6 +43,11 @@ PBProtobufNode >> isFieldNode [
 ]
 
 { #category : #testing }
+PBProtobufNode >> isImportNode [
+	^false
+]
+
+{ #category : #testing }
 PBProtobufNode >> isMessageNode [
 
 	^false
@@ -47,6 +55,12 @@ PBProtobufNode >> isMessageNode [
 
 { #category : #testing }
 PBProtobufNode >> isOptionNode [
+
+	^false
+]
+
+{ #category : #testing }
+PBProtobufNode >> isPackageNode [
 
 	^false
 ]

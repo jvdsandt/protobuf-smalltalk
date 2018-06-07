@@ -31,6 +31,8 @@ PBProtobufFileNode >> imports [
 { #category : #initialization }
 PBProtobufFileNode >> initFromNodes: aParseNodes [
 
+	package := aParseNodes detect: [ :each | each isPackageNode ] ifNone: [ nil ].
+	imports := aParseNodes select: [ :each | each isImportNode ].
 	options := aParseNodes select: [ :each | each isOptionNode ].
 	messages := aParseNodes select: [ :each | each isMessageNode ].
 ]
