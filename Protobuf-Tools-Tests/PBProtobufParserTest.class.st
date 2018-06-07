@@ -167,6 +167,16 @@ PBProtobufParserTest >> testHexLiteral2 [
 ]
 
 { #category : #tests }
+PBProtobufParserTest >> testImport1 [
+
+	super testImport1.
+	
+	self assert: self result name equals: 'other.proto'.
+	self assert: self result isPublic equals: true.
+	self assert: self result isWeak equals: false.
+]
+
+{ #category : #tests }
 PBProtobufParserTest >> testMapField1 [
 	super testMapField1.
 	self assert: self result name equals: 'projects'.
@@ -221,6 +231,17 @@ PBProtobufParserTest >> testOption2 [
 	super testOption2.
 	self assert: self result name equals: 'xyz'.
 	self assert: self result value equals: 123.
+]
+
+{ #category : #tests }
+PBProtobufParserTest >> testProto1 [
+
+	super testProto1.
+	
+	self assert: result imports isEmpty.
+	self assert: result options isEmpty.
+	self assert: result messages isEmpty.
+
 ]
 
 { #category : #tests }
