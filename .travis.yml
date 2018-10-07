@@ -1,0 +1,14 @@
+language: smalltalk
+sudo: false
+
+os:
+- linux
+
+smalltalk:
+- Pharo-6.1
+- Pharo-7.0
+- Pharo64-7.0
+
+cache:
+  directories:
+    $HOME/package-cache
