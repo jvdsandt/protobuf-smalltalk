@@ -1,4 +1,6 @@
 # protobuf-smalltalk
+[![Build Status](https://travis-ci.org/jvdsandt/protobuf-smalltalk.svg?branch=master)](https://travis-ci.org/jvdsandt/protobuf-smalltalk)
+
 Protocol buffers support for Smalltalk. [Protocol buffers](https://developers.google.com/protocol-buffers/)
 is a language and 
 platform-neutral serialization protocol created by Google. This projects adds support for
