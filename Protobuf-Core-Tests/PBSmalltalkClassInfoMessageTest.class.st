@@ -70,7 +70,8 @@ PBSmalltalkClassInfoMessageTest >> testWriteClassInfo [
 		readTag;
 		readMessage: PBSmalltalkClassInfoMessage.
 		
-	self assert: result name equals: msg name
+	self assert: msg name equals: result name.
+	self assert: msg instVarNameList asArray equals: result instVarNameList asArray.
 ]
 
 { #category : #tests }
@@ -93,18 +94,6 @@ PBSmalltalkClassInfoMessageTest >> testWriteClassInfoList [
 		input readMessage: PBSmalltalkClassInfoMessage ].
 	
 	1 to: list size do: [ :index |
-		self assert: (list at: index) name equals: (result at: index) name ]
-]
-
-{ #category : #tests }
-PBSmalltalkClassInfoMessageTest >> testWritePackage [
-
-	| input p1 bytes |
-	
-	input := PBCodedReadStream on: self packageMessageBytes readStream.
-	
-	p1 := PBSmalltalkPackageMessage readFrom: input.
-	
-	bytes := p1 asBytes.
-	self assert: bytes equals: self packageMessageBytes
+		self assert: (list at: index) name equals: (result at: index) name.
+		self assert: (list at: index) instVarNameList asArray equals: (result at: index) instVarNameList asArray ]
 ]

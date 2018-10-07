@@ -372,16 +372,6 @@ PBProtobufGrammarTest >> testOption3 [
 ]
 
 { #category : #tests }
-PBProtobufGrammarTest >> testOption4 [
-	self 
-		parse: 'option (google.api.http) = {
-      put: "/v1/{name=projects/*/subscriptions/*}"
-      body: "*" };
-  }'
-		rule: #option.
-]
-
-{ #category : #tests }
 PBProtobufGrammarTest >> testProto1 [
 	self 
 		parse: 'syntax = "proto3";'
@@ -461,24 +451,6 @@ PBProtobufGrammarTest >> testService1 [
 	self 
 		parse: 'service SearchService {
 	rpc Search (SearchRequest) returns (SearchResponse);
-}'
-		rule: #service
-]
-
-{ #category : #tests }
-PBProtobufGrammarTest >> testService2 [
-	self 
-		parse: 'service Subscriber {
-  rpc CreateSubscription(Subscription) returns (Subscription) {
-    option (google.api.http) = {
-      put: "/v1/{name=projects/*/subscriptions/*}"
-      body: "*" };
-  }
-  rpc GetSubscription(GetSubscriptionRequest) returns (Subscription) {
-    option (google.api.http) = {
-      get: "/v1/{subscription=projects/*/subscriptions/*}"
-    };
-  }
 }'
 		rule: #service
 ]
