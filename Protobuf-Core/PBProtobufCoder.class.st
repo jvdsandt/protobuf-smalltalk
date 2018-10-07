@@ -7,12 +7,6 @@ Class {
 	#category : #'Protobuf-Core'
 }
 
-{ #category : #'coder-length-delimited' }
-PBProtobufCoder class >> decodeUtf8: aString [
-
-	^ ZnUTF8Encoder default decodeBytes: aString
-]
-
 { #category : #'coder-varint' }
 PBProtobufCoder class >> decodeVarint32: aByteArray [
 
@@ -39,12 +33,6 @@ PBProtobufCoder class >> decodeZigZag64: anInteger [
 	^(anInteger bitAt: 1) = 0
 			ifTrue: [ anInteger >> 1 ]
 			ifFalse: [ ((anInteger + 1) >> 1) negated ]	
-]
-
-{ #category : #'coder-length-delimited' }
-PBProtobufCoder class >> encodeUtf8: aString [
-
-	^ ZnUTF8Encoder default encodeString: aString
 ]
 
 { #category : #'coder-varint' }
@@ -227,7 +215,7 @@ PBProtobufCoder class >> readVarintRaw: aByteStream [
 { #category : #'coder-length-delimited' }
 PBProtobufCoder class >> utf8Encoder [
 
-	^ ZnUTF8Encoder default
+	^ ZnUTF8Encoder utf8
 ]
 
 { #category : #'coder-fixed' }
