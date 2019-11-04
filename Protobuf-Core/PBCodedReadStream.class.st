@@ -64,6 +64,13 @@ PBCodedReadStream >> readBoolList [
 ]
 
 { #category : #'write and read' }
+PBCodedReadStream >> readBytes [
+	| byteCount |
+	byteCount := coder readVarintRaw: stream.
+	^ stream next: byteCount 
+]
+
+{ #category : #'write and read' }
 PBCodedReadStream >> readDouble [
 	
 	^coder readDouble: stream
