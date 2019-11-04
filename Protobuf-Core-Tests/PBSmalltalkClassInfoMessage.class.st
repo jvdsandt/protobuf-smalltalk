@@ -76,7 +76,7 @@ PBSmalltalkClassInfoMessage >> readFrom: input [
 		add: 18 -> [ superclassName := input readString ];
 		add: 26 -> [ subclassNameList add: input readString ];
 		add: 34 -> [ instVarNameList add: input readString ];
-		add: 40 -> [ infoSize := input readUInt64 ];
+		add: 40 -> [ infoSize := input readUint64 ];
 		add: 72 -> [ infoIndexList add: input readInt32 ];
 		add: 74 -> [ infoIndexList addAll: input readInt32List ];
 		add: 80 -> [ infoFinal := input readBool ];
