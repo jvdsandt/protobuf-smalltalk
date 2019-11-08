@@ -64,6 +64,13 @@ PBCodedReadStream >> readBoolList [
 ]
 
 { #category : #'write and read' }
+PBCodedReadStream >> readBytes [
+	| byteCount |
+	byteCount := coder readVarintRaw: stream.
+	^ stream next: byteCount 
+]
+
+{ #category : #'write and read' }
 PBCodedReadStream >> readDouble [
 	
 	^coder readDouble: stream
@@ -200,13 +207,13 @@ PBCodedReadStream >> readMessage: aMessageClass [
 ]
 
 { #category : #'write and read' }
-PBCodedReadStream >> readSFixed32 [
+PBCodedReadStream >> readSfixed32 [
 	
 	^coder readSFixed32: stream
 ]
 
 { #category : #'write and read' }
-PBCodedReadStream >> readSFixed32List [
+PBCodedReadStream >> readSfixed32List [
 
 	| length list |
 	
@@ -222,13 +229,13 @@ PBCodedReadStream >> readSFixed32List [
 ]
 
 { #category : #'write and read' }
-PBCodedReadStream >> readSFixed64 [
+PBCodedReadStream >> readSfixed64 [
 	
 	^coder readSFixed64: stream
 ]
 
 { #category : #'write and read' }
-PBCodedReadStream >> readSFixed64List [
+PBCodedReadStream >> readSfixed64List [
 
 	| length size list |
 	
@@ -245,13 +252,13 @@ PBCodedReadStream >> readSFixed64List [
 ]
 
 { #category : #'write and read' }
-PBCodedReadStream >> readSInt32 [
+PBCodedReadStream >> readSint32 [
 	
 	^coder decodeZigZag32: (coder readVarintRaw: stream)
 ]
 
 { #category : #'write and read' }
-PBCodedReadStream >> readSInt64 [
+PBCodedReadStream >> readSint64 [
 	
 	^coder decodeZigZag64: (coder readVarintRaw: stream)
 ]
@@ -277,13 +284,12 @@ PBCodedReadStream >> readTag [
 ]
 
 { #category : #'write and read' }
-PBCodedReadStream >> readUInt32 [
-	
-	^self coder readVarint32: stream
+PBCodedReadStream >> readUint32 [
+	^ self coder readVarint32: stream
 ]
 
 { #category : #'write and read' }
-PBCodedReadStream >> readUInt64 [
+PBCodedReadStream >> readUint64 [
 	
 	^self coder readVarintRaw: stream
 ]

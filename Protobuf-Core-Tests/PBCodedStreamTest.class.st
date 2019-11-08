@@ -48,24 +48,34 @@ PBCodedStreamTest >> testFloat [
 
 { #category : #tests }
 PBCodedStreamTest >> testIntegers32 [
-
-	self testWriter: [ :output |
+	self
+		testWriter: [ :output | 
 			output writeField: 1 int32: 12345.
 			output writeField: 2 uint32: 12345.
 			output writeField: 3 sint32: -12345.
 			output writeField: 4 fixed32: 12345.
 			output writeField: 5 sfixed32: -12345 ]
-		reader: [ :input |
-			self assert: input readTag equals: (input coder makeTag: 1 wireType: WireTypeVarint).
+		reader: [ :input | 
+			self
+				assert: input readTag
+				equals: (input coder makeTag: 1 wireType: WireTypeVarint).
 			self assert: input readInt32 equals: 12345.
-			self assert: input readTag equals: (input coder makeTag: 2 wireType: WireTypeVarint).
-			self assert: input readUInt32 equals: 12345.
-			self assert: input readTag equals: (input coder makeTag: 3 wireType: WireTypeVarint).
-			self assert: input readSInt32 equals: -12345.
-			self assert: input readTag equals: (input coder makeTag: 4 wireType: WireType32bit).
+			self
+				assert: input readTag
+				equals: (input coder makeTag: 2 wireType: WireTypeVarint).
+			self assert: input readUint32 equals: 12345.
+			self
+				assert: input readTag
+				equals: (input coder makeTag: 3 wireType: WireTypeVarint).
+			self assert: input readSint32 equals: -12345.
+			self
+				assert: input readTag
+				equals: (input coder makeTag: 4 wireType: WireType32bit).
 			self assert: input readFixed32 equals: 12345.
-			self assert: input readTag equals: (input coder makeTag: 5 wireType: WireType32bit).
-			self assert: input readSFixed32 equals: -12345 ]
+			self
+				assert: input readTag
+				equals: (input coder makeTag: 5 wireType: WireType32bit).
+			self assert: input readSfixed32 equals: -12345 ]
 ]
 
 { #category : #tests }
@@ -81,13 +91,13 @@ PBCodedStreamTest >> testIntegers64 [
 			self assert: input readTag equals: (input coder makeTag: 1 wireType: WireTypeVarint).
 			self assert: input readInt64 equals: 12345.
 			self assert: input readTag equals: (input coder makeTag: 2 wireType: WireTypeVarint).
-			self assert: input readUInt64 equals: 12345.
+			self assert: input readUint64 equals: 12345.
 			self assert: input readTag equals: (input coder makeTag: 3 wireType: WireTypeVarint).
-			self assert: input readSInt64 equals: -12345.
+			self assert: input readSint64 equals: -12345.
 			self assert: input readTag equals: (input coder makeTag: 4 wireType: WireType64bit).
 			self assert: input readFixed64 equals: 12345.
 			self assert: input readTag equals: (input coder makeTag: 5 wireType: WireType64bit).
-			self assert: input readSFixed64 equals: -12345 ]
+			self assert: input readSfixed64 equals: -12345 ]
 ]
 
 { #category : #tests }
