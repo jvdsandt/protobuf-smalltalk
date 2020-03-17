@@ -41,12 +41,12 @@ PBProtobufParser >> decimalLiteral [
 
 { #category : #'grammar-toplevel' }
 PBProtobufParser >> enum [
-
-	^super enum ==> [ :array |
-		| name body |
-		name := array at: 3.
-		body := array at: 4.
-		body withName: name ]
+	^ super enum
+		==> [ :array | 
+			| name body |
+			name := array at: 3.
+			body := array at: 4.
+			body withName: name ]
 ]
 
 { #category : #'grammar-literals' }

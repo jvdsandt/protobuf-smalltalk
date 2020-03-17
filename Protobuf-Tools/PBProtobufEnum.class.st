@@ -23,6 +23,11 @@ PBProtobufEnum >> initWithName: aName values: anEnumValueColl options: anOptionC
 	options := anOptionColl asArray
 ]
 
+{ #category : #testing }
+PBProtobufEnum >> isEnumNode [
+	^ true
+]
+
 { #category : #accessing }
 PBProtobufEnum >> name [
 	^ name

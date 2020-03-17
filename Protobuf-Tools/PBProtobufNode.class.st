@@ -32,6 +32,11 @@ PBProtobufNode >> hash [
 ]
 
 { #category : #testing }
+PBProtobufNode >> isEnumNode [
+	^ false
+]
+
+{ #category : #testing }
 PBProtobufNode >> isEnumValueNode [
 
 	^false
