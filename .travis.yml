@@ -5,9 +5,9 @@ os:
 - linux
 
 smalltalk:
-- Pharo-6.1
 - Pharo-7.0
 - Pharo64-7.0
+- Pharo64-8.0
 
 cache:
   directories:
