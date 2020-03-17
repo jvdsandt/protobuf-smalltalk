@@ -230,26 +230,22 @@ PBProtobufCoder class >> writeDouble: aFloat on: aByteStream [
 
 { #category : #'coder-fixed' }
 PBProtobufCoder class >> writeFixed32: anInteger on: aByteStream [
-
-	aByteStream nextPut: (anInteger digitAt: 4).
-	aByteStream nextPut: (anInteger digitAt: 3).
-	aByteStream nextPut: (anInteger digitAt: 2).
-	aByteStream nextPut: (anInteger digitAt: 1).
-
+	aByteStream nextPut: (anInteger byteAt: 4).
+	aByteStream nextPut: (anInteger byteAt: 3).
+	aByteStream nextPut: (anInteger byteAt: 2).
+	aByteStream nextPut: (anInteger byteAt: 1)
 ]
 
 { #category : #'coder-fixed' }
 PBProtobufCoder class >> writeFixed64: anInteger on: aByteStream [
-
-	aByteStream nextPut: (anInteger digitAt: 8).
-	aByteStream nextPut: (anInteger digitAt: 7).
-	aByteStream nextPut: (anInteger digitAt: 6).
-	aByteStream nextPut: (anInteger digitAt: 5).
-	aByteStream nextPut: (anInteger digitAt: 4).
-	aByteStream nextPut: (anInteger digitAt: 3).
-	aByteStream nextPut: (anInteger digitAt: 2).
-	aByteStream nextPut: (anInteger digitAt: 1).
-
+	aByteStream nextPut: (anInteger byteAt: 8).
+	aByteStream nextPut: (anInteger byteAt: 7).
+	aByteStream nextPut: (anInteger byteAt: 6).
+	aByteStream nextPut: (anInteger byteAt: 5).
+	aByteStream nextPut: (anInteger byteAt: 4).
+	aByteStream nextPut: (anInteger byteAt: 3).
+	aByteStream nextPut: (anInteger byteAt: 2).
+	aByteStream nextPut: (anInteger byteAt: 1)
 ]
 
 { #category : #'coder-fixed' }
