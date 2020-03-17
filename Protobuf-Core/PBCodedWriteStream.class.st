@@ -49,6 +49,15 @@ PBCodedWriteStream >> on: aByteStream coder: aCoder [
 ]
 
 { #category : #writing }
+PBCodedWriteStream >> writeEnum: anEnumInteger [
+	
+		anEnumInteger isNil
+		ifTrue: [ ^ self ].
+		coder writeVarintRaw: anEnumInteger on: stream
+	
+]
+
+{ #category : #writing }
 PBCodedWriteStream >> writeField: aFieldNr bool: aValue [
 	"Only write somthing if <aValue> is true."
 
@@ -206,14 +215,15 @@ PBCodedWriteStream >> writeField: aFieldNr int64: aValue [
 
 { #category : #writing }
 PBCodedWriteStream >> writeField: aFieldNr message: aMessage [
-
 	| msgBytes |
-
 	aMessage isNil
 		ifTrue: [ ^ self ].
-		
-	msgBytes := self buffer: [ :s | aMessage writeTo: (self class on: s) ].
-	self writeField: aFieldNr bytes: msgBytes.
+	aMessage isEnum
+		ifTrue: [ self writeField: aFieldNr int32: aMessage value ]
+		ifFalse: [ msgBytes := self
+				buffer: [ :s | aMessage writeTo: (self class on: s) ].
+			self writeField: aFieldNr bytes: msgBytes ]
+
 ]
 
 { #category : #writing }

@@ -70,11 +70,6 @@ PBSmalltalkMessageType >> initDefaults [
 	className := self node name capitalized asSymbol
 ]
 
-{ #category : #accessing }
-PBSmalltalkMessageType >> node [
-	^ node
-]
-
 { #category : #initialization }
 PBSmalltalkMessageType >> on: aMessageNode [
 
